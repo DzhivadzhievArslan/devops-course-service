@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  pull_request:            # каждый pull request
+  push:
+    branches: [main]       # и каждый push в main (после слияния)
+
+permissions:
+  contents: read           # конвейеру нужно только читать код
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7          # забрать код (в GitLab это делается само)
+
+      - uses: actions/setup-python@v7      # поставить Python
+        with:
+          python-version: "3.12"
+          cache: pip                       # кэш скачанных пакетов между запусками
+
+      - name: Установить зависимости
+        run: pip install -r requirements-dev.txt
+
+      - name: Проверка стиля
+        run: ruff check .
+
+      - name: Проверка форматирования
+        run: ruff format --check .
+
+      - name: Тесты
+        run: pytest
