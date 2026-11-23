@@ -1,8 +1,9 @@
-"""Подключение к базе данных и модель задачи."""
+"""Подключение к базе данных и таблица предсказаний."""
 
 import os
+from datetime import UTC, datetime
 
-from sqlalchemy import Boolean, String, create_engine
+from sqlalchemy import DateTime, Float, String, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
 # Адрес базы берётся из переменной окружения.
@@ -18,12 +19,19 @@ class Base(DeclarativeBase):
     pass
 
 
-class Task(Base):
-    __tablename__ = "tasks"
+class Prediction(Base):
+    """Каждый запрос к модели записывается: что спросили, что ответила, какая версия."""
+
+    __tablename__ = "predictions"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(200))
-    done: Mapped[bool] = mapped_column(Boolean, default=False)
+    text: Mapped[str] = mapped_column(String(1000))
+    label: Mapped[str] = mapped_column(String(50))
+    confidence: Mapped[float] = mapped_column(Float)
+    model_version: Mapped[str] = mapped_column(String(50))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
 
 
 def get_session():
