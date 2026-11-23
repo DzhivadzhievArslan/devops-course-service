@@ -7,6 +7,13 @@ def test_health(client):
     assert response.json() == {"status": "ok"}
 
 
+def test_index_page(client):
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/html")
+    assert "Тема обращения" in response.text
+
+
 def test_ready(client):
     response = client.get("/ready")
     assert response.status_code == 200
