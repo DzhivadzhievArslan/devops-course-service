@@ -43,10 +43,16 @@ def load_dataset(path: Path = DATA_PATH) -> tuple[list[str], list[str]]:
 
 
 def model_version(path: Path = DATA_PATH) -> str:
-    """Версия модели = отпечаток данных и параметров. Те же данные — та же версия."""
-    digest = hashlib.sha256(path.read_bytes())
-    digest.update(json.dumps(PARAMS, sort_keys=True).encode())
-    return digest.hexdigest()[:12]
+    """Версия модели = отпечаток данных и параметров. Те же данные — та же версия.
+
+    Отпечаток считается по разобранным строкам, а не по байтам файла: Git на Windows
+    может переписать переносы строк (LF → CRLF), и байты файла станут другими,
+    хотя данные те же.
+    """
+    texts, labels = load_dataset(path)
+    payload = {"rows": list(zip(texts, labels, strict=True)), "params": PARAMS}
+    raw = json.dumps(payload, sort_keys=True, ensure_ascii=False).encode()
+    return hashlib.sha256(raw).hexdigest()[:12]
 
 
 def train(path: Path = DATA_PATH) -> TrainedModel:
