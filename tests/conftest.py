@@ -4,12 +4,19 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
+from app import model as ml
 from app.db import Base, get_session
 from app.main import app
 
 
+@pytest.fixture(scope="session")
+def trained_model():
+    # Обучаем модель один раз на все тесты: это занимает около секунды.
+    return ml.train()
+
+
 @pytest.fixture
-def client():
+def client(trained_model):
     # Каждый тест получает свою пустую базу SQLite в памяти.
     engine = create_engine(
         "sqlite://",
@@ -24,5 +31,7 @@ def client():
 
     app.dependency_overrides[get_session] = override_session
     with TestClient(app) as test_client:
+        # Подменяем модель после старта: файла модели в тестах нет.
+        app.state.model = trained_model
         yield test_client
     app.dependency_overrides.clear()
