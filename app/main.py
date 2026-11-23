@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Response
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
@@ -17,6 +18,7 @@ from app.db import Base, Prediction, engine, get_session
 # Вместе с версией модели по ней видно, что сейчас работает: это нужно для выкатки и отката.
 APP_VERSION = os.getenv("APP_VERSION", "dev")
 MODEL_PATH = Path(os.getenv("MODEL_PATH", "model/model.joblib"))
+INDEX_HTML = Path(__file__).parent / "static" / "index.html"
 
 
 @asynccontextmanager
@@ -51,6 +53,12 @@ def get_model() -> ml.TrainedModel:
     if model is None:
         raise HTTPException(status_code=503, detail="Модель не загружена")
     return model
+
+
+@app.get("/", include_in_schema=False)
+def index():
+    """Страница для людей: поле для текста, ответ модели и история запросов."""
+    return FileResponse(INDEX_HTML)
 
 
 @app.get("/health")

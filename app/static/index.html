@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тема обращения</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236e56cf'/%3E%3Cpath d='M8 11h16M8 16h11M8 21h7' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f4f1;
+    --card: #ffffff;
+    --text: #1f1d2b;
+    --muted: #6b6878;
+    --line: #e9e5df;
+    --accent: #6e56cf;
+    --hero-from: #4b3aa8;
+    --hero-to: #2f5bd3;
+    --shadow: 0 1px 2px rgba(31, 29, 43, .06), 0 4px 16px rgba(31, 29, 43, .05);
+    --payment-bg: #e8f1ff; --payment-fg: #1e5bbf;
+    --delivery-bg: #e6f6ee; --delivery-fg: #1d7a4b;
+    --refund-bg: #fff1e3; --refund-fg: #a9561a;
+    --account-bg: #f1ebff; --account-fg: #5b3fc4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141318;
+      --card: #1c1b22;
+      --text: #ecebf2;
+      --muted: #a3a0b2;
+      --line: #2c2a35;
+      --accent: #9b8afb;
+      --hero-from: #3b2f86;
+      --hero-to: #22449e;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3);
+      --payment-bg: #1c2b44; --payment-fg: #8db8ff;
+      --delivery-bg: #17332a; --delivery-fg: #7fd6a8;
+      --refund-bg: #3a2817; --refund-fg: #f0b27a;
+      --account-bg: #2a2342; --account-fg: #bba9ff;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.5 Onest, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 24px 16px 48px; }
+
+  .hero {
+    background: linear-gradient(135deg, var(--hero-from), var(--hero-to));
+    color: #fff;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: var(--shadow);
+  }
+  .hero h1 { margin: 0 0 4px; font-size: 26px; font-weight: 700; }
+  .hero p.lead { margin: 0 0 20px; color: rgba(255, 255, 255, .8); }
+  textarea {
+    width: 100%;
+    min-height: 96px;
+    resize: vertical;
+    border: 0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font: inherit;
+    color: #1f1d2b;
+    background: #fff;
+  }
+  textarea:focus { outline: 3px solid rgba(255, 255, 255, .45); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+  button.primary {
+    border: 0;
+    border-radius: 10px;
+    padding: 11px 20px;
+    font: inherit;
+    font-weight: 600;
+    background: #fff;
+    color: var(--hero-from);
+    cursor: pointer;
+  }
+  button.primary:disabled { opacity: .6; cursor: default; }
+  .hint { color: rgba(255, 255, 255, .7); font-size: 14px; }
+  .examples { margin-top: 16px; }
+  .examples span { font-size: 14px; color: rgba(255, 255, 255, .75); margin-right: 4px; }
+  .chip {
+    border: 1px solid rgba(255, 255, 255, .35);
+    background: rgba(255, 255, 255, .1);
+    color: #fff;
+    border-radius: 999px;
+    padding: 5px 12px;
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .chip:hover { background: rgba(255, 255, 255, .2); }
+
+  .result {
+    margin-top: 20px;
+    background: rgba(255, 255, 255, .12);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: none;
+  }
+  .result.show { display: block; }
+  .result .topic { display: flex; align-items: center; gap: 12px; }
+  .result .icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: grid; place-items: center;
+    background: #fff; font-size: 22px;
+  }
+  .result .name { font-size: 22px; font-weight: 700; }
+  .result .sub { color: rgba(255, 255, 255, .8); font-size: 14px; }
+  .bar { height: 8px; background: rgba(255, 255, 255, .2); border-radius: 999px; margin-top: 14px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: #fff; border-radius: 999px; width: 0; transition: width .4s; }
+  .unsure { margin-top: 10px; font-size: 14px; color: #ffe3a3; display: none; }
+  .error { margin-top: 12px; color: #ffd0d0; font-size: 14px; display: none; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+  .stat {
+    background: var(--card); border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow);
+  }
+  .stat .label { color: var(--muted); font-size: 13px; }
+  .stat .value { font-weight: 600; font-size: 18px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+
+  .card {
+    background: var(--card); border-radius: 12px; padding: 20px; margin-top: 16px; box-shadow: var(--shadow);
+  }
+  .card h2 { margin: 0 0 4px; font-size: 18px; }
+  .card p.note { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; color: var(--muted); font-weight: 500; padding: 8px 8px; border-bottom: 1px solid var(--line); }
+  td { padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.mono { font-family: ui-monospace, Consolas, monospace; font-size: 13px; color: var(--muted); }
+  .pill { display: inline-block; border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 500; white-space: nowrap; }
+  .pill.payment { background: var(--payment-bg); color: var(--payment-fg); }
+  .pill.delivery { background: var(--delivery-bg); color: var(--delivery-fg); }
+  .pill.refund { background: var(--refund-bg); color: var(--refund-fg); }
+  .pill.account { background: var(--account-bg); color: var(--account-fg); }
+  .empty { color: var(--muted); font-size: 14px; padding: 8px 0; }
+  footer { margin-top: 20px; color: var(--muted); font-size: 14px; text-align: center; }
+  footer a { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .hero { padding: 20px; }
+    .stats { grid-template-columns: 1fr; }
+    .hide-sm { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <h1>Тема обращения в поддержку</h1>
+    <p class="lead">Напишите обращение клиента — модель определит, о чём оно: оплата, доставка, возврат или аккаунт.</p>
+
+    <label for="text" class="hint">Текст обращения</label>
+    <textarea id="text" maxlength="1000" placeholder="Например: курьер так и не приехал"></textarea>
+    <div class="row">
+      <button class="primary" id="go">Определить тему</button>
+      <span class="hint">или Ctrl + Enter</span>
+    </div>
+    <div class="row examples" id="examples">
+      <span>Примеры:</span>
+    </div>
+
+    <div class="result" id="result">
+      <div class="topic">
+        <div class="icon" id="r-icon"></div>
+        <div>
+          <div class="name" id="r-name"></div>
+          <div class="sub" id="r-sub"></div>
+        </div>
+      </div>
+      <div class="bar"><i id="r-bar"></i></div>
+      <div class="unsure" id="r-unsure">Модель не уверена: в обращении мало признаков одной темы. Такие обращения лучше передать человеку.</div>
+    </div>
+    <div class="error" id="error"></div>
+  </section>
+
+  <div class="stats">
+    <div class="stat"><div class="label">Версия сервиса</div><div class="value" id="s-app">—</div></div>
+    <div class="stat"><div class="label">Версия модели</div><div class="value" id="s-model">—</div></div>
+    <div class="stat"><div class="label">Точность модели</div><div class="value" id="s-acc">—</div></div>
+  </div>
+
+  <section class="card">
+    <h2>Последние запросы</h2>
+    <p class="note">Каждый ответ сохраняется в базе вместе с версией модели, которая его дала.</p>
+    <div id="history"></div>
+  </section>
+
+  <footer>Для разработчиков: <a href="/docs">описание API</a></footer>
+</div>
+
+<script>
+  const TOPICS = {
+    payment: { name: "Оплата", icon: "💳" },
+    delivery: { name: "Доставка", icon: "🚚" },
+    refund: { name: "Возврат", icon: "💸" },
+    account: { name: "Аккаунт", icon: "👤" },
+  };
+  const EXAMPLES = [
+    "С карты дважды списали деньги",
+    "Курьер так и не приехал",
+    "Хочу вернуть куртку, не подошёл размер",
+    "Не приходит смс для входа",
+    "Добрый день",
+  ];
+  const UNSURE_BELOW = 0.5;
+  const $ = (id) => document.getElementById(id);
+
+  function topicName(label) { return (TOPICS[label] || { name: label }).name; }
+  function percent(x) { return Math.round(x * 100) + " %"; }
+
+  for (const text of EXAMPLES) {
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = text;
+    b.onclick = () => { $("text").value = text; predict(); };
+    $("examples").appendChild(b);
+  }
+
+  async function loadVersion() {
+    try {
+      const v = await (await fetch("/version")).json();
+      $("s-app").textContent = v.version;
+      $("s-model").textContent = v.model_version || "модель не загружена";
+      $("s-acc").textContent = v.model_accuracy == null ? "—"
+        : (v.model_accuracy * 100).toLocaleString("ru-RU", { maximumFractionDigits: 1 }) + " %";
+    } catch { /* сервис недоступен — оставляем прочерки */ }
+  }
+
+  async function loadHistory() {
+    const box = $("history");
+    let items = [];
+    try { items = await (await fetch("/predictions?limit=10")).json(); } catch { return; }
+    box.replaceChildren();
+    if (!items.length) {
+      const p = document.createElement("div");
+      p.className = "empty";
+      p.textContent = "Пока пусто. Отправьте первое обращение.";
+      box.appendChild(p);
+      return;
+    }
+    const table = document.createElement("table");
+    table.innerHTML = "<thead><tr><th>Время</th><th>Обращение</th><th>Тема</th>" +
+      "<th class='num'>Уверенность</th><th class='hide-sm'>Модель</th></tr></thead>";
+    const body = document.createElement("tbody");
+    for (const p of items) {
+      const tr = document.createElement("tr");
+      const cells = [
+        new Date(p.created_at).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }),
+        p.text, null, percent(p.confidence), p.model_version,
+      ];
+      cells.forEach((value, i) => {
+        const td = document.createElement("td");
+        if (i === 2) {
+          const pill = document.createElement("span");
+          pill.className = "pill " + p.label;
+          pill.textContent = topicName(p.label);
+          td.appendChild(pill);
+        } else {
+          td.textContent = value;
+        }
+        if (i === 3) td.className = "num";
+        if (i === 4) td.className = "mono hide-sm";
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    }
+    table.appendChild(body);
+    box.appendChild(table);
+  }
+
+  async function predict() {
+    const text = $("text").value.trim();
+    $("error").style.display = "none";
+    if (!text) { $("text").focus(); return; }
+    $("go").disabled = true;
+    try {
+      const res = await fetch("/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (!res.ok) {
+        const msg = res.status === 503
+          ? "Модель не загружена: сервис запущен без файла модели."
+          : "Сервис ответил ошибкой " + res.status + ".";
+        throw new Error(msg);
+      }
+      const p = await res.json();
+      const topic = TOPICS[p.label] || { name: p.label, icon: "?" };
+      $("r-icon").textContent = topic.icon;
+      $("r-name").textContent = topic.name;
+      $("r-sub").textContent = "Уверенность " + percent(p.confidence) + " · модель " + p.model_version;
+      $("r-bar").style.width = percent(p.confidence).replace(" ", "");
+      $("r-unsure").style.display = p.confidence < UNSURE_BELOW ? "block" : "none";
+      $("result").classList.add("show");
+      loadHistory();
+    } catch (e) {
+      $("error").textContent = e.message || "Сервис недоступен.";
+      $("error").style.display = "block";
+    } finally {
+      $("go").disabled = false;
+    }
+  }
+
+  $("go").onclick = predict;
+  $("text").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) predict();
+  });
+  loadVersion();
+  loadHistory();
+</script>
+</body>
+</html>
